@@ -1,0 +1,10 @@
+import {dirname,join,resolve} from 'node:path';
+import {writeJson} from '../src/shopyy/artifacts.js';
+import {inspectSourceComponents} from '../src/shopyy/browser.js';
+const file=resolve(process.argv[2]),root=dirname(file),mode=process.argv[3]||'menu';
+if(!['menu','more','announcement-dismissed'].includes(mode))throw Error('Unknown planned navigation state');
+const id=`home-current-navigation-${mode}`,selectors=`contracts/${id}.json`,mobile=mode!=='announcement-dismissed';
+const actions=mobile?[{op:'click',selector:'button[aria-label="Toggle menu"]',effect:'read-only'},...(mode==='more'?[{op:'click',selector:'header > div.lg\\:hidden button[aria-label="More Void Research pages"]',effect:'read-only'}]:[])]:[{op:'click',selector:'button[aria-label="Hide these messages"]',effect:'read-only'}];
+await writeJson(join(root,selectors),{sourcePath:'/',inspectionId:id,captureStructure:true,topology:'component-tree',infiniteAnimations:'frame-zero',rasterizeInfiniteFrameZero:true,preloadImages:true,imageRoot:'div.min-h-screen',initialReady:'header [data-first-screen-marquee="true"]',viewports:mobile?['tablet','mobile']:['desktop','tablet','mobile'],actions,...(mobile?{postReady:'header > div.lg\\:hidden'}:{postAbsent:'header [data-first-screen-marquee="true"]'}),components:{header:'div.min-h-screen > header',spacer:'div.min-h-screen > div.h-16',...(mobile?{mobilePanel:'header > div.lg\\:hidden'}:{})}});
+const report=await inspectSourceComponents(file,selectors);await writeJson(join(root,`verification/recon-current/${id}.json`),report);
+console.log(JSON.stringify({mode,captures:report.rows.length,failed:report.rows.filter((r:any)=>!r.passed).length}));if(!report.passed)process.exitCode=1;

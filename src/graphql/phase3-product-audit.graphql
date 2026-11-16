@@ -1,0 +1,17 @@
+query Phase3ProductAudit {
+  products(first: 250) {
+    nodes {
+      id
+      handle
+      title
+      status
+      tags
+      metafield(namespace: "site2shop", key: "source_fingerprint") {
+        value
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+}

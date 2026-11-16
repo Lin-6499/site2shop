@@ -1,0 +1,6 @@
+mutation CreatePhase4Article($article: ArticleCreateInput!) {
+  articleCreate(article: $article) {
+    article { id handle title isPublished }
+    userErrors { field message code }
+  }
+}

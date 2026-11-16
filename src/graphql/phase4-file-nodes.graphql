@@ -1,0 +1,9 @@
+query ResolvePhase4Files($ids: [ID!]!) {
+  nodes(ids: $ids) {
+    id
+    ... on MediaImage {
+      fileStatus
+      image { url }
+    }
+  }
+}

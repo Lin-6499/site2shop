@@ -1,0 +1,44 @@
+mutation PublishSelectedAcceptancePages {
+  beforeAfterExamples: pageUpdate(
+    id: "gid://shopify/Page/167395262663"
+    page: { isPublished: true }
+  ) {
+    page { id handle isPublished }
+    userErrors { field message code }
+  }
+  about: pageUpdate(
+    id: "gid://shopify/Page/167397359815"
+    page: { isPublished: true }
+  ) {
+    page { id handle isPublished }
+    userErrors { field message code }
+  }
+  imageTipsGuidelines: pageUpdate(
+    id: "gid://shopify/Page/167397392583"
+    page: { isPublished: true }
+  ) {
+    page { id handle isPublished }
+    userErrors { field message code }
+  }
+  inspirationGallery: pageUpdate(
+    id: "gid://shopify/Page/167397425351"
+    page: { isPublished: true }
+  ) {
+    page { id handle isPublished }
+    userErrors { field message code }
+  }
+  realEstateProfessionalV2: pageUpdate(
+    id: "gid://shopify/Page/167397458119"
+    page: { isPublished: true }
+  ) {
+    page { id handle isPublished }
+    userErrors { field message code }
+  }
+  customRealtorMerch: pageUpdate(
+    id: "gid://shopify/Page/167397490887"
+    page: { isPublished: true }
+  ) {
+    page { id handle isPublished }
+    userErrors { field message code }
+  }
+}

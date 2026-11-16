@@ -1,0 +1,12 @@
+mutation Phase5PagePublishBatch($id0: ID!, $id1: ID!, $id2: ID!, $id3: ID!, $id4: ID!, $id5: ID!, $id6: ID!, $id7: ID!, $id8: ID!, $id9: ID!) {
+  publish0: pageUpdate(id: $id0, page: {isPublished: true}) { page { id handle isPublished } userErrors { field message code } }
+  publish1: pageUpdate(id: $id1, page: {isPublished: true}) { page { id handle isPublished } userErrors { field message code } }
+  publish2: pageUpdate(id: $id2, page: {isPublished: true}) { page { id handle isPublished } userErrors { field message code } }
+  publish3: pageUpdate(id: $id3, page: {isPublished: true}) { page { id handle isPublished } userErrors { field message code } }
+  publish4: pageUpdate(id: $id4, page: {isPublished: true}) { page { id handle isPublished } userErrors { field message code } }
+  publish5: pageUpdate(id: $id5, page: {isPublished: true}) { page { id handle isPublished } userErrors { field message code } }
+  publish6: pageUpdate(id: $id6, page: {isPublished: true}) { page { id handle isPublished } userErrors { field message code } }
+  publish7: pageUpdate(id: $id7, page: {isPublished: true}) { page { id handle isPublished } userErrors { field message code } }
+  publish8: pageUpdate(id: $id8, page: {isPublished: true}) { page { id handle isPublished } userErrors { field message code } }
+  publish9: pageUpdate(id: $id9, page: {isPublished: true}) { page { id handle isPublished } userErrors { field message code } }
+}

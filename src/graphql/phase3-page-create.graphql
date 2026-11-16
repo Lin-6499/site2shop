@@ -1,0 +1,19 @@
+mutation Phase3PageCreate($page: PageCreateInput!) {
+  pageCreate(page: $page) {
+    page {
+      id
+      handle
+      title
+      isPublished
+      templateSuffix
+      metafield(namespace: "site2shop", key: "source_fingerprint") {
+        value
+      }
+    }
+    userErrors {
+      code
+      field
+      message
+    }
+  }
+}

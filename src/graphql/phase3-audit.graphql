@@ -1,0 +1,38 @@
+query Phase3Audit {
+  pages(first: 250) {
+    nodes {
+      id
+      handle
+      title
+      body
+      isPublished
+      templateSuffix
+      metafield(namespace: "site2shop", key: "source_fingerprint") {
+        value
+      }
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+  collections(first: 250) {
+    nodes {
+      id
+      handle
+      title
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+  menus(first: 50) {
+    nodes {
+      id
+      handle
+      title
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+}

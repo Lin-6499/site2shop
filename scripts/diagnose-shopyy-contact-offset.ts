@@ -1,0 +1,11 @@
+import {chromium} from 'playwright';
+import {readFile,writeFile} from 'node:fs/promises';
+import {resolve,join} from 'node:path';
+const state=process.argv[2];if(!state)throw Error('Authorized state path required');const root=resolve('../voidresearch-shopyy'),plan=JSON.parse(await readFile(join(root,'verification/contact-route-native-trial-plan.json'),'utf8'));
+const browser=await chromium.launch({channel:'chrome',headless:false}),context=await browser.newContext({storageState:resolve(state),viewport:{width:1440,height:1000},locale:'en-US',timezoneId:'America/New_York'}),page=await context.newPage();
+try{
+ await page.goto(plan.target.origin+'/pages/Contact-Us?theme_id=504457&preview=1&is_theme_edit=1&device=computer',{waitUntil:'domcontentloaded',timeout:25000});await page.locator('#vr-contact-route-host[data-ready="true"]').waitFor({timeout:15000});await page.evaluate(()=>document.fonts.ready);
+ const selectors=['body','#MainContent','#vr-contact-route-host','#vr-block-navigation','[data-vr-component="header"]','[data-vr-component="headerSpacer"]','#vr-block-contact','#vr-block-contact>div','#vr-block-contact h1','#vr-block-contact h2'];
+ const observation=await page.evaluate(selectors=>({scrollY,activeElement:document.activeElement?.tagName,samples:selectors.map(selector=>({selector,elements:[...document.querySelectorAll(selector)].slice(0,4).map(e=>{const r=e.getBoundingClientRect(),s=getComputedStyle(e);return{tag:e.tagName,class:e.className,text:e.children.length?null:e.textContent,rect:{x:r.x,y:r.y,width:r.width,height:r.height},fontFamily:s.fontFamily,fontSize:s.fontSize,position:s.position,top:s.top,display:s.display,margin:s.margin,padding:s.padding,transform:s.transform,ancestors:[e.parentElement,e.parentElement?.parentElement].filter(Boolean).map(p=>({id:p!.id,class:p!.className,rect:{y:p!.getBoundingClientRect().y,height:p!.getBoundingClientRect().height},position:getComputedStyle(p!).position,margin:getComputedStyle(p!).margin,padding:getComputedStyle(p!).padding,transform:getComputedStyle(p!).transform}))};})}))}),selectors);
+ await writeFile(join(root,'verification/incremental-draft-504457',plan.version,'native-verification/header-offset-diagnosis.json'),JSON.stringify(observation,null,2));console.log(JSON.stringify(observation));
+}finally{await context.close();await browser.close();}

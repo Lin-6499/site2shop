@@ -1,0 +1,45 @@
+{
+  "name": "site2shop",
+  "version": "0.3.0",
+  "private": true,
+  "type": "module",
+  "description": "Evidence-led storefront compiler with Shopify and SHOPYY platform adapters",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "site2shop": "tsx src/cli.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "tsx --test tests/*.test.ts",
+    "test:shopyy": "tsx --test tests/shopyy*.test.ts",
+    "shopyy:void:home": "tsx scripts/verify-voidresearch-home.ts ../voidresearch-shopyy/shopyy.project.json",
+    "test:product-scroll": "tsx scripts/verify-product-scroll.ts",
+    "shopyy:accept": "tsx src/cli.ts shopyy-workflow gate --stage preflight",
+    "shopyy:workflow": "tsx src/cli.ts shopyy-workflow",
+    "browsers": "playwright install chromium",
+    "theme:check": "shopify theme check"
+  },
+  "dependencies": {
+    "@splidejs/splide": "^4.1.4",
+    "bootstrap": "^5.3.8",
+    "cheerio": "^1.1.2",
+    "commander": "^14.0.1",
+    "fflate": "^0.8.2",
+    "filepond": "4.30.3",
+    "filepond-plugin-file-validate-type": "1.2.8",
+    "filepond-plugin-image-preview": "4.6.10",
+    "liquidjs": "^10.30.0",
+    "pixelmatch": "^7.1.0",
+    "playwright": "1.64.1",
+    "postcss": "^8.5.6",
+    "postcss-value-parser": "^4.2.0",
+    "sharp": "^0.34.5"
+  },
+  "devDependencies": {
+    "@shopify/cli": "4.9.4",
+    "@types/node": "^22.0.0",
+    "@types/pixelmatch": "^5.2.6",
+    "tsx": "^4.20.0",
+    "typescript": "^5.9.0"
+  }
+}

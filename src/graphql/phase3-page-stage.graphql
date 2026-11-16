@@ -1,0 +1,17 @@
+mutation PublishPageForAcceptance {
+  pageUpdate(
+    id: "gid://shopify/Page/167395262663"
+    page: { isPublished: true }
+  ) {
+    page {
+      id
+      handle
+      isPublished
+    }
+    userErrors {
+      field
+      message
+      code
+    }
+  }
+}

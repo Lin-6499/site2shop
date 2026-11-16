@@ -1,0 +1,6 @@
+mutation CreatePhase4Collection($input: CollectionInput!) {
+  collectionCreate(input: $input) {
+    collection { id handle title }
+    userErrors { field message }
+  }
+}

@@ -1,0 +1,6 @@
+mutation AddPhase4CollectionProducts($id: ID!, $productIds: [ID!]!) {
+  collectionAddProducts(id: $id, productIds: $productIds) {
+    collection { id handle title }
+    userErrors { field message }
+  }
+}

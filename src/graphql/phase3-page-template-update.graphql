@@ -1,0 +1,19 @@
+mutation UpdatePhase3PageTemplate($id: ID!, $page: PageUpdateInput!) {
+  pageUpdate(id: $id, page: $page) {
+    page {
+      id
+      handle
+      title
+      isPublished
+      templateSuffix
+      metafield(namespace: "site2shop", key: "source_fingerprint") {
+        value
+      }
+    }
+    userErrors {
+      code
+      field
+      message
+    }
+  }
+}

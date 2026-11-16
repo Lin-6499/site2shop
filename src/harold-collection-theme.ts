@@ -1,0 +1,20 @@
+// Source-rendered Bootstrap collection composition. Product/review values remain
+// Shopify-native target data; the old storefront's collection resources are kept.
+export const haroldCollectionSnippet=String.raw`{% doc %}
+@param {collection} collection - The isolated Harold collection.
+{% enddoc %}
+<div id="template-collection" class="collection mt-0 mb-5" data-s2s-collection data-s2s-harold-collection>
+ <div id="collection-header" class="mb-9 position-relative overflow-hidden mt-n0"><div class="container"><div class="mx-auto position-relative text-center pt-9" style="max-width:760px"><h1 class="title mb-0">{{ collection.title | escape }}</h1>{% if collection.description != blank %}<div class="description rte mt-7 mb-0 opacity-70 fs-5">{{ collection.description }}</div>{% endif %}</div></div></div>
+ <div class="container"><div id="collection-utilities" class="d-flex align-items-center justify-content-between justify-content-xl-end mb-4"><form method="get" class="collection-sort-by input-group w-auto d-none d-xl-flex" data-s2s-collection-sort><label class="input-group-text" for="sort-by">Sort by</label><select id="sort-by" name="sort_by" class="form-select" onchange="this.form.submit()">{% assign selected_sort = collection.sort_by | default: collection.default_sort_by %}{% for option in collection.sort_options %}<option value="{{ option.value | escape }}"{% if option.value == selected_sort %} selected{% endif %}>{{ option.name | escape }}</option>{% endfor %}</select></form><p class="collection-count-product small mb-0 ms-4 text-muted d-none">{{ collection.products_count }} items</p></div>
+ {% paginate collection.products by 48 %}<div id="collection-cols" class="row"><div id="collection-main-col" class="col"><ul id="AjaxinateContainer" class="product-list list-unstyled mx-n3 mb-0 row row-cols-2 row-cols-sm-2 row-cols-lg-3" data-s2s-collection-grid>{% for product in collection.products %}{% render 's2s-harold-collection-card', product: product, collection: collection %}{% endfor %}</ul></div></div>{{ paginate | default_pagination }}{% endpaginate %}
+ </div>
+</div>`;
+
+export const haroldCollectionCardSnippet=String.raw`{% doc %}
+@param {product} product - Target product represented by this card.
+@param {collection} collection - The isolated collection route context.
+{% enddoc %}
+<li class="product-list-item splide__slide overflow-hidden p-3 p-lg-4 mb-4" data-s2s-collection-card>
+ <a class="img-wrapper d-block position-relative mb-4 hover-effect-shine shadow-sm" href="{{ product.url | within: collection }}" style="border-radius:1rem;background-color:#f8f8f8">{% if product.tags contains 'Best Seller' or product.tags contains 'best-seller' %}<div class="position-absolute top-0 start-0 mt-3 z-index-1"><span class="badge-save badge text-uppercase rounded-pill ms-3 bg-primary">Best Seller</span></div>{% endif %}{% if product.featured_image %}{{ product.featured_image | image_url: width: 960, height: 960, crop: 'center' | image_tag: class: 'product-img img-fluid w-100 rounded', loading: 'eager', widths: '320,480,640,960', sizes: '(min-width:992px) 33vw,50vw', alt: product.title }}{% endif %}</a>
+ <div class="row mx-n2"><div class="col-xl-8 px-2"><h3 class="product-title title mb-2 h6"><a class="text-decoration-none d-block" href="{{ product.url | within: collection }}">{{ product.title | escape }}</a></h3><div class="mb-2" data-s2s-rating-binding data-id="{{ product.id }}">{% render 's2s-product-rating', product: product, link_to_reviews: true, card: true %}</div><p class="product-price mb-3 text-uppercase" data-s2s-collection-price>{% if product.compare_at_price_max > product.price %}<s class="product-price-compare text-muted me-1"><span class="visually-hidden">Old Price</span>{{ product.compare_at_price_max | money }}</s>{% endif %}<span class="product-price-final">{% if product.price_varies %}<span class="price-from">From </span>{% endif %}{{ product.price | money }}</span></p></div><div class="col-xl-4 px-2"><a href="{{ product.url | within: collection }}" class="btn btn-sm btn-primary w-auto w-xl-100 mt-2 text-nowrap px-6" data-s2s-collection-shop>Shop Now</a></div></div>
+</li>`;

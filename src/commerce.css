@@ -1,0 +1,127 @@
+[data-s2s-file] {
+  display: block;
+  width: 100%;
+  padding: 20px;
+  border: 1px dashed #987e6d;
+  border-radius: 12px;
+  background: #faf8f5;
+  color: #1a2829;
+  cursor: pointer;
+}
+[data-s2s-file]::file-selector-button {
+  font: inherit;
+  border: 0;
+  background: #cca38b;
+  color: #1a2829;
+  padding: 10px 16px;
+  margin-right: 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+[data-s2s-file-preview] img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  border-radius: 8px;
+}
+[data-review="photo-1"] img {
+  object-fit: contain;
+  margin-right: 16px;
+}
+[data-s2s-status]:empty {
+  display: none;
+}
+[data-s2s-status] {
+  color: #753d29;
+  overflow-wrap: anywhere;
+}
+[data-s2s-product][aria-busy="true"] {
+  opacity: 0.8;
+}
+.s2s-cart a,
+.s2s-cart .btn-link,
+.s2s-cart .btn-outline-primary {
+  color: #1a2829;
+}
+.s2s-cart .btn-primary {
+  color: #1a2829;
+}
+.s2s-cart a:focus-visible,
+.s2s-cart button:focus-visible,
+.s2s-cart input:focus-visible {
+  outline: 2px solid #1a2829;
+  outline-offset: 3px;
+}
+.s2s-cart {
+  max-width: 1050px;
+  min-height: 50vh;
+}
+.s2s-cart h1 {
+  margin-bottom: 32px;
+}
+.s2s-cart-item {
+  display: grid;
+  grid-template-columns: 120px 1fr auto;
+  gap: 24px;
+  padding: 28px 0;
+  border-bottom: 1px solid #d7d1c9;
+}
+.s2s-cart-item > img {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+}
+.s2s-cart-item > div:first-child {
+  grid-column: 2;
+}
+.s2s-cart-item h2 {
+  font-size: 24px;
+  margin: 0 0 8px;
+}
+.s2s-cart-item dl {
+  font-size: 14px;
+}
+.s2s-cart-item dd {
+  overflow-wrap: anywhere;
+}
+.s2s-cart-item input {
+  width: 65px;
+  padding: 8px;
+  border: 1px solid #d7d1c9;
+  margin-left: 8px;
+}
+.s2s-cart-total {
+  text-align: right;
+  padding: 32px 0;
+}
+.s2s-cart-total strong {
+  margin-left: 18px;
+}
+.s2s-cart-total button {
+  margin: 8px 0 0 12px;
+}
+@media (max-width: 575px) {
+  .s2s-cart-item {
+    grid-template-columns: 80px 1fr;
+    gap: 16px;
+  }
+  .s2s-cart-item > img {
+    width: 80px;
+    height: 80px;
+  }
+  .s2s-cart-item > strong {
+    grid-column: 2;
+  }
+  .s2s-cart-item h2 {
+    font-size: 22px;
+  }
+  .s2s-cart-total {
+    text-align: left;
+  }
+  .s2s-cart-total button {
+    margin: 8px 8px 0 0;
+  }
+  .s2s-cart-total strong {
+    margin-left: 8px;
+  }
+}

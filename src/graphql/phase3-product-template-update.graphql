@@ -1,0 +1,14 @@
+mutation UpdatePhase3ProductTemplate($product: ProductUpdateInput!) {
+  productUpdate(product: $product) {
+    product {
+      id
+      handle
+      status
+      templateSuffix
+    }
+    userErrors {
+      field
+      message
+    }
+  }
+}

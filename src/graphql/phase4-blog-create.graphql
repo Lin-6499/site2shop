@@ -1,0 +1,6 @@
+mutation CreatePhase4Blog($blog: BlogCreateInput!) {
+  blogCreate(blog: $blog) {
+    blog { id handle title }
+    userErrors { field message code }
+  }
+}

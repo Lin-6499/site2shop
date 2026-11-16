@@ -1,0 +1,3 @@
+import {resolve,dirname,join} from 'node:path';import {load} from 'cheerio';import {jsonFile,readRef} from '../src/shopyy/artifacts.js';
+const root=dirname(resolve(process.argv[2])),run=await jsonFile(join(root,'verification/recon-current/notification-development-source-run.json'));
+for(const state of run.rows.filter((r:any)=>r.state==='open')){const d=JSON.parse((await readRef(root,state.rows[0].structure)).toString()),$=load(d.structure);console.log(JSON.stringify({kind:state.notificationType,dialogButtons:$('[role=dialog] button').map((_,n)=>({label:$(n).attr('aria-label'),text:$(n).text(),html:$.html(n).slice(0,300)})).get()}));}

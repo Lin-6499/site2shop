@@ -1,0 +1,10 @@
+import {readFile,writeFile,mkdir} from 'node:fs/promises';
+import {resolve,dirname,join} from 'node:path';
+import {jsonFile,digest,writeJson} from '../src/shopyy/artifacts.js';
+const root=dirname(resolve(process.argv[2])),manifest=await jsonFile(join(root,'staging/incremental-draft-504457/manifest.json')),block=manifest.blocks.find((b:any)=>b.id==='quality'),bytes=await readFile(join(root,block.file)),reportBytes=await readFile(join(root,'verification/incremental-draft-504457/component-transport-comparison.json')),report=JSON.parse(reportBytes.toString());
+if(digest(bytes)!==block.sha256||!report.passed||report.rows.length!==3||report.rows.some((r:any)=>r.blockSha256!==block.sha256||!r.passed))throw Error('Quality handoff is not bound to its current three-device comparison');
+const version=`2026-10-28-quality-r1-${block.sha256.slice(0,8)}`,directory=join(root,'staging/handoff-packages',version);
+await mkdir(join(root,'staging/handoff-packages'),{recursive:true});await mkdir(directory);
+await writeFile(join(directory,'quality.html'),bytes,{flag:'wx'});await writeFile(join(directory,'component-transport-comparison.json'),reportBytes,{flag:'wx'});
+await writeJson(join(directory,'manifest.json'),{schemaVersion:1,version,role:'immutable-provisional-component-handoff',target:manifest.target,blocks:[{...block,file:'quality.html',dependencies:{images:[],routes:[]},objectiveComparison:{file:'component-transport-comparison.json',sha256:digest(reportBytes),viewports:['desktop','tablet','mobile'],passed:true},visualReview:report.visualReview}],publicationAllowed:false,fullSiteAcceptance:false});
+console.log(JSON.stringify({version,directory,sha256:block.sha256,characters:block.characters}));

@@ -1,0 +1,30 @@
+query Phase4Audit {
+  collections(first: 250) {
+    nodes {
+      id
+      handle
+      title
+      metafield(namespace: "site2shop", key: "source_fingerprint") { value }
+    }
+    pageInfo { hasNextPage }
+  }
+  blogs(first: 50) {
+    nodes {
+      id
+      handle
+      title
+      metafield(namespace: "site2shop", key: "source_fingerprint") { value }
+      articles(first: 250) {
+        nodes {
+          id
+          handle
+          title
+          isPublished
+          metafield(namespace: "site2shop", key: "source_fingerprint") { value }
+        }
+        pageInfo { hasNextPage }
+      }
+    }
+    pageInfo { hasNextPage }
+  }
+}

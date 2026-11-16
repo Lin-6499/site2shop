@@ -1,0 +1,11 @@
+import{readFile,writeFile,copyFile,mkdir}from'node:fs/promises';
+import{resolve,join}from'node:path';
+import{createHash}from'node:crypto';
+import assert from'node:assert/strict';
+import{gate}from'../src/shopyy/gates.js';
+const root=resolve(process.argv[2]),file=join(root,'shopyy.project.json'),out=join(root,'verification/active-interaction-plan-r1'),hash=(b:Buffer|string)=>createHash('sha256').update(b).digest('hex');
+await mkdir(out,{recursive:true});const before=await readFile(file),project=JSON.parse(before.toString());await copyFile(file,join(out,'before-project.json'));
+const tests=JSON.parse(await readFile(join(out,'integrated-test-report.json'),'utf8'));assert.equal(tests.passed,true);assert.equal(tests.total,23);
+project.capturePlanFile='contracts/capture-plan.v4.interactions-r1.json';project.pageContractsFile='contracts/page-contracts.v4.interactions-r1.json';project.workflow.interactionCoverageRequired=true;await writeFile(file,JSON.stringify(project,null,2));
+const stages=[];for(const stage of ['plan','source','preflight','online']as const){const result=await gate(file,stage,{requireReview:false});assert.equal(result.passed,false);assert(result.findings.some(f=>f.message.includes('pending-execution: 2358')));assert(result.findings.some(f=>f.message.includes('unknown-device: 7')));stages.push({stage,passed:result.passed,findings:result.findings});}
+const report={owner:'/root',activatedAt:new Date().toISOString(),projectBeforeSha256:hash(before),projectAfterSha256:hash(await readFile(file)),activePlan:project.capturePlanFile,activePageContracts:project.pageContractsFile,coverageRequired:true,requiredInteractions:2358,legacyRunnableRoutesPreserved:true,checks:23,typecheckPassed:true,stages,scope:'Full-site required interactions are now hash-bound active project obligations. Every global stage stays red for pending bindings and seven actual unresolved device labels. Fixed draft batches retain separate exact scope; no route or business acceptance is inferred.',globalAccepted:false,remoteWrites:0,published:false};await writeFile(join(out,'activation-review.json'),JSON.stringify(report,null,2));console.log(JSON.stringify({active:true,requiredInteractions:2358,globalStagesBlocked:stages.length,remoteWrites:0,published:false}));

@@ -1,0 +1,22 @@
+import { popArtMediaContract } from './harold-pop-art-media-contract.js';
+
+// This adapter is deliberately scoped to the captured pop-art workflow.
+// Match semantic option tuples to media names, never to gallery ordinals.
+export function repairPopArtSection(contents: string, marker: string) {
+  if (marker !== 'harold-pop-art') return contents;
+  const script = String.raw`<script>(()=>{const init=()=>{const root=document.querySelector('[data-s2s-harold-pop-art]');if(!root||root.dataset.s2sPopMediaReady)return;root.dataset.s2sPopMediaReady='true';const form=root.querySelector('form'),groups=[...form.querySelectorAll('[data-s2s-option-group]')],map=JSON.parse(root.querySelector('[data-s2s-pop-media]').textContent),slides=[...root.querySelectorAll('[data-family-slide]')];const file=url=>decodeURIComponent(new URL(url,location.href).pathname.split('/').pop());const sync=()=>{const tuple=groups.map(g=>g.querySelector('input[type="radio"]:checked:not([name="form-option-framing-swicher"])')?.value||g.querySelector('select')?.value||'').join('|'),name=map[tuple];if(!name){root.dataset.s2sMediaError='Unmapped option tuple: '+tuple;return;}const index=slides.findIndex(n=>file(n.querySelector('img')?.src||'')===name);if(index<0){root.dataset.s2sMediaError='Missing target media: '+name;return;}delete root.dataset.s2sMediaError;root.dispatchEvent(new CustomEvent('s2s:media:show',{detail:{index}}));};form.addEventListener('change',()=>queueMicrotask(sync));form.addEventListener('click',e=>{if(e.target.closest('[data-s2s-step-next],[data-s2s-step-previous]'))queueMicrotask(sync)});sync();};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();})();</script>`;
+  let result = contents.replace("image_tag: loading: 'lazy', widths: '390,640,900,1200,1600'", "image_tag: loading: 'eager', widths: '390,640,900,1200,1600'");
+  for (const [oldFile, value] of Object.entries({ 's2s-d99a0c72c6ff78f7.png':'Black', 's2s-5fabef444801f480.png':'White', 's2s-b8d4f1d4600d10a1.png':'Birch', 's2s-9304bafae1995968.png':'Walnut' })) {
+    result=result.replaceAll(oldFile,popArtMediaContract.swatches[value as 'Black'|'White'|'Birch'|'Walnut']);
+  }
+  result=result.replaceAll("when 'Matte Black'", "when 'Black'");
+  result=result.replace('<label for="{{ value_id }}">{% if s2s_swatch != blank %}<img src="{{ s2s_swatch }}" width="108"', '<label for="{{ value_id }}">{% if value != \'24x36\' %}<img src="{{ s2s_swatch }}" width="108"');
+  result=result.replace('</section>', '</section><style>[data-s2s-harold-pop-art] .s2s-pop-sizes label{min-width:0;max-width:100%}[data-s2s-harold-pop-art] .s2s-pop-sizes img{max-width:100%;height:auto}</style>');
+  const switchScript=String.raw`<script>(()=>{const init=()=>{const root=document.querySelector('[data-s2s-harold-pop-art]');root?.addEventListener('change',e=>{if(!e.target.matches('[data-s2s-frame-switch] input'))return;e.stopImmediatePropagation();const group=e.target.closest('[data-s2s-framing-group]'),off=e.target===group.querySelectorAll('[data-s2s-frame-switch] input')[1];group.querySelectorAll('[data-s2s-frame-values],[data-s2s-frame-heading]').forEach(n=>n.hidden=off);group.querySelectorAll('[data-s2s-unframed-values]').forEach(n=>n.hidden=!off)},true)};if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init()})();</script>`;
+  result=result.replace('{% schema %}',switchScript+'{% schema %}');
+  result=result.replace('</section>', '</section><style>[data-s2s-harold-pop-art] .s2s-pop-sizes{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}[data-s2s-harold-pop-art] .s2s-pop-sizes label{display:grid;gap:12px;text-align:center;cursor:pointer}[data-s2s-harold-pop-art] .s2s-pop-sizes img,[data-s2s-harold-pop-art] .s2s-pop-size-unavailable{width:100%;aspect-ratio:1;object-fit:contain;border:1px solid transparent;border-radius:16px}[data-s2s-harold-pop-art] .s2s-pop-sizes input:checked+label img,[data-s2s-harold-pop-art] .s2s-pop-sizes input:checked+label .s2s-pop-size-unavailable{border-color:#1c2929}</style>');
+  result = result.replace('{% schema %}', script+'{% schema %}');
+  // The data node must belong to the root that owns the media state.
+  result = result.replace('</section>', '<script type="application/json" data-s2s-pop-media>'+JSON.stringify(popArtMediaContract.tuples)+'</script></section>');
+  return result;
+}

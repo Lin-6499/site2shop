@@ -1,0 +1,28 @@
+import {dirname,join,resolve} from 'node:path';
+import {readFile,mkdir,writeFile} from 'node:fs/promises';
+import {load} from 'cheerio';
+import {jsonFile,writeJson,digest,canonical} from '../src/shopyy/artifacts.js';
+
+const file=resolve(process.argv[2]),sourcePath=process.argv[3],root=dirname(file),project=await jsonFile(file);
+if(!['/contact','/affiliate'].includes(sourcePath))throw Error('Explicitly reviewed inner-page extraction only');
+const group=sourcePath==='/contact'?'contact':'affiliate',expectedStates=group==='contact'?8:14;
+const families=await jsonFile(join(root,project.familiesFile)),page=families.pages.find((p:any)=>p.sourcePath===sourcePath),data=await jsonFile(join(root,page.dataFile));
+const source=await readFile(join(root,data.bodyFile),'utf8'),dom=load(source,null,false),wrapper=dom('[data-vr-storefront]');
+if(wrapper.length!==1||wrapper.children('header').length!==1||wrapper.children('div.h-16').length!==1||wrapper.children('footer').length!==1)throw Error('Unexpected shared-shell boundaries');
+wrapper.children('header,div.h-16,footer').remove();
+const body=dom.html(),templates=await readFile(join(root,data.interactionTemplatesFile),'utf8'),publicUi=JSON.stringify(data.publicUi,null,2),style=await readFile(join(root,project.commonStyleFile),'utf8'),runtime=await readFile(join(root,project.commonScriptFile),'utf8');
+const comparisonFile='verification/recon-current/disclosure-development-comparison.json',comparisonBytes=await readFile(join(root,comparisonFile)),comparison=JSON.parse(comparisonBytes.toString());
+const rows=comparison.rows.filter((r:any)=>r.group===group);
+const bodyComponents=['title','disclosures'];
+if(rows.length!==expectedStates*3||rows.some((r:any)=>r.errors?.length||r.differences?.some((d:any)=>bodyComponents.includes(d.component))))throw Error('All planned title/disclosure states need three-device objective comparison');
+const shellDifferences=rows.flatMap((r:any)=>(r.differences||[]).filter((d:any)=>!bodyComponents.includes(d.component)).map((d:any)=>({state:r.state,viewport:r.viewport,...d})));
+const bodyComparisonFile='verification/recon-current/'+group+'-body-component-comparison.json';
+await writeJson(join(root,bodyComparisonFile),{kind:'scoped-'+group+'-title-and-disclosure-comparison-not-full-page-acceptance',measuredComponents:bodyComponents,fullComparison:{file:comparisonFile,sha256:digest(comparisonBytes),passed:rows.every((r:any)=>!r.differences?.length)},rows:rows.map((r:any)=>({...r,differences:r.differences.filter((d:any)=>bodyComponents.includes(d.component))})),deferredShellDifferences:shellDifferences,bodyInitialFormAndOtherContent:'requires independent visual and behavior review',wholePageAccepted:false,publicationAllowed:false});
+const sourceRunFile='verification/recon-current/disclosure-development-source-run.json',sourceRunBytes=await readFile(join(root,sourceRunFile)),sourceRun=JSON.parse(sourceRunBytes.toString()),sourceRows=sourceRun.rows.filter((r:any)=>r.group===group);
+if(sourceRows.length!==expectedStates||sourceRows.some((r:any)=>!r.passed))throw Error('Source state scope incomplete');
+const hashes={body:digest(body),templates:digest(templates),publicUi:digest(publicUi),style:digest(style),runtime:digest(runtime)};
+const version='r1-'+group+'-inputs-'+digest(canonical(hashes)).slice(0,12),directory=join(root,'staging/handoff-inputs',version);
+await mkdir(directory,{recursive:false});
+for(const[name,value]of [['body.htm',body],['templates.htm',templates],['public-ui.json',publicUi],['source.css',style],['runtime.snapshot.js',runtime]])await writeFile(join(directory,name),value);
+await writeJson(join(directory,'manifest.json'),{schemaVersion:1,version,status:'provisional-inputs-not-editor-package-or-acceptance',target:{origin:'https://pepsss.zenshop.cn',skinId:'504457',role:'draft'},sourcePath,targetPath:page.targetPath,body:{file:'body.htm',sha256:hashes.body,originalFile:data.bodyFile,originalSha256:digest(source),extraction:'Retain original wrapper and all remaining direct children; remove exactly one header, h-16 spacer and footer. Shared shell installed separately.'},templates:[{file:'templates.htm',sha256:hashes.templates,sourceFile:data.interactionTemplatesFile}],publicUi:{file:'public-ui.json',sha256:hashes.publicUi,schema:'single-disclosure-list-v1'},sharedStyle:{file:'source.css',sha256:hashes.style},runtime:{file:'runtime.snapshot.js',sha256:hashes.runtime},sourceRun:{file:sourceRunFile,sha256:digest(sourceRunBytes),group,states:sourceRows.map((r:any)=>({state:r.state,rows:r.rows.map((s:any)=>({viewport:s.viewport,evidence:s.evidence,structure:s.structure}))}))},localComparison:{file:comparisonFile,sha256:digest(comparisonBytes),developmentRenderSha256:comparison.developmentRenderSha256,rows:rows.length,fullPageObjectivePassed:shellDifferences.length===0,scopedComponentReport:{file:bodyComparisonFile,sha256:digest(await readFile(join(root,bodyComparisonFile))),components:bodyComponents,passed:true},deferredShellDifferences:shellDifferences,visualReview:'pending-independent-review',formalBuildBound:false},imageTokens:[...new Set([...body.matchAll(/\{\{asset:([^{}]+)\}\}/g)].map(m=>m[1]))],routeTokens:[...new Set([...body.matchAll(/\{\{route:([^{}]+)\}\}/g)].map(m=>m[1]))],unboundCapabilities:[group==='contact'?'Contact form is a source-submission boundary; no fake success or email is sent':'Affiliate application is a source identity/submission boundary; no account or application is copied or submitted','Shared navigation and online route destinations','Remaining full-page visual review'],wholeSiteAcceptance:false,publicationAllowed:false});
+console.log(JSON.stringify({version,objectiveRows:rows.length,sourceStates:sourceRows.length,editorPackage:false,published:false}));

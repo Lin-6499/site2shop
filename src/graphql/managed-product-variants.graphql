@@ -1,0 +1,11 @@
+query ManagedProductVariants($id: ID!) {
+  product(id: $id) {
+    id
+    handle
+    metafield(namespace: "site2shop", key: "source_fingerprint") { value }
+    variants(first: 250) {
+      nodes { id price compareAtPrice }
+      pageInfo { hasNextPage }
+    }
+  }
+}

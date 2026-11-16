@@ -1,0 +1,9 @@
+query Phase3ProductPreview($id: ID!) {
+  product(id: $id) {
+    id
+    handle
+    status
+    onlineStoreUrl
+    onlineStorePreviewUrl
+  }
+}

@@ -1,0 +1,38 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import http from 'node:http';
+import {Liquid} from 'liquidjs';
+import {load} from 'cheerio';
+const project=path.resolve(process.argv[2]);
+const base=path.join(project,'pop-art-repair');
+const engine=new Liquid({strictFilters:false});
+const locale=JSON.parse(await fs.readFile(path.join(project,'theme/locales/en.default.json'),'utf8'));
+engine.registerFilter('t',key=>key.split('.').reduce((n,k)=>n?.[k],locale)||key);
+engine.registerFilter('asset_url',v=>'/assets/'+v);
+engine.registerFilter('stylesheet_tag',v=>`<link rel="stylesheet" href="${v}">`);
+engine.registerFilter('money',v=>'$'+(v/100).toFixed(2));
+engine.registerFilter('handleize',v=>String(v).toLowerCase().replace(/[^a-z0-9]+/g,'-'));
+engine.registerFilter('json',v=>JSON.stringify(v));
+engine.registerFilter('url_encode',v=>encodeURIComponent(v));
+engine.registerFilter('image_url',(v,...args)=>{const width=args.find(n=>Array.isArray(n)&&n[0]==='width')?.[1]||480;const url=new URL(v.src||v,'https://azhiip-13.myshopify.com');url.searchParams.set('width',width);return url.href;});
+engine.registerFilter('image_tag',(v,...args)=>{const alt=args.find(n=>Array.isArray(n)&&n[0]==='alt')?.[1]||'';return `<img src="${v}" alt="${alt}" loading="eager">`;});
+engine.registerFilter('payment_terms',()=> '');
+const pages=new Map();
+for(const [marker,handle] of [['pop-art','custom-pop-art']]){
+ const raw=await fs.readFile(path.join(base,'target.html'),'utf8');
+ const dom=load(raw);const variants=JSON.parse(dom('[data-s2s-variants]').first().text());
+ const images=dom('[data-family-slide] img').toArray().map(n=>({src:dom(n).attr('src'),alt:dom(n).attr('alt'),width:1600,height:1600}));
+ const options=[...new Set(variants.map(n=>n.options.length))][0];
+ const names=['Color','Canvas Size','Frame'];
+ const product={title:dom('#product-content-area h1').text(),url:'/products/'+handle,id:variants[0].id,description:'',images,variants,selected_or_first_available_variant:variants[0],has_only_default_variant:false,options_with_values:Array.from({length:options},(_,i)=>({name:names[i],position:i+1,values:[...new Set(variants.map(v=>v.options[i]))],selected_value:variants[0].options[i]}))};
+ let source=await fs.readFile(path.join(project,`theme/sections/s2s-harold-${marker}-product.liquid`),'utf8');
+ source=source.replace(/\{% schema %\}[\s\S]*?\{% endschema %\}/g,'').replace(/\{% content_for 'blocks' %\}/g,'').replace(/\{% form [\s\S]*?%\}/g,'<form class="s2s-family-form s2s-harold-form">').replace(/\{% endform %\}/g,'</form>');
+ const generated=await engine.parseAndRender(source,{product,section:{id:'local-state-repair',settings:{}},cart:{currency:{iso_code:'USD'}},shop:{url:'https://azhiip-13.myshopify.com',currency:'USD',enabled_payment_types:[],shipping_policy:{url:'/policies/shipping-policy'}}});
+ dom('script,iframe').remove();
+ dom('.s2s-harold-product').closest('.shopify-section').html(generated);
+ dom('[src^="//"]').each((_,n)=>dom(n).attr('src','https:'+dom(n).attr('src')));
+ dom('[href^="//"]').each((_,n)=>dom(n).attr('href','https:'+dom(n).attr('href')));
+ dom('head').append('<script>window.Shopify={currency:{active:"USD"},country:"US",routes:{root:"/"}}</script>');
+ pages.set('/products/'+handle,dom.html());
+}
+http.createServer(async(req,res)=>{try{const pathname=new URL(req.url,'http://localhost').pathname;if(pages.has(pathname)){res.setHeader('Content-Type','text/html');res.end(pages.get(pathname));return;}if(pathname.startsWith('/assets/')){const file=path.join(project,'theme/assets',path.basename(pathname));res.setHeader('Content-Type',file.endsWith('.css')?'text/css':file.endsWith('.js')?'text/javascript':'application/octet-stream');res.end(await fs.readFile(file));return;}res.statusCode=404;res.end('Not found');}catch(e){res.statusCode=500;res.end(String(e));}}).listen(4174,'127.0.0.1',()=>console.log('LOCAL_REPAIR_PREVIEW http://127.0.0.1:4174'));

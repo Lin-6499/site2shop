@@ -1,0 +1,13 @@
+#!/usr/bin/env node
+'use strict';
+const path=require('node:path'),fs=require('node:fs/promises'),intake=require('./lib/shopyy-external-intake.cjs');
+const args=process.argv.slice(2),command=args.shift()||'sync',get=(name,fallback)=>{const i=args.indexOf('--'+name);return i<0?fallback:args[i+1];},root=path.resolve(get('root',path.resolve(__dirname,'../../voidresearch-shopyy')));
+(async()=>{let output;
+ if(command==='sync'){const l=await intake.sync(root);output={entries:l.entries.length,activeEntries:l.activeEntryIds.length,localVerified:l.entries.filter(e=>e.verification.ok&&!e.supersededBy).length,installReady:l.entries.filter(e=>e.stage==='install_ready').length,readyJobs:l.jobs.filter(j=>j.state==='ready').length,newJobs:l.newJobs,capacity:l.capacity,discoveryErrors:l.discoveryErrors,readyFile:path.join(root,'verification/incremental-draft-504457/pipeline/external-intake/ready-jobs.json'),queueIsNotExecution:true,modelWakeupSupported:false};}
+ else if(command==='claim')await intake.withLedger(root,async l=>{if(!l)throw Error('Run sync first');output=intake.claim(l,{jobId:get('job'),consumer:get('consumer'),threadId:get('thread')});return l;});
+ else if(command==='promote')await intake.withLedger(root,async l=>{const file=path.resolve(get('bundle','')),bundle=JSON.parse(await fs.readFile(file,'utf8'));output=await intake.promote(l,get('entry'),get('stage'),bundle,root,get('consumer'));return l;});
+ else if(command==='complete')await intake.withLedger(root,async l=>{output=await intake.finish(l,{jobId:get('job'),consumer:get('consumer'),result:{file:get('result'),sha256:get('sha256')}},root);return l;});
+ else if(command==='status'){const l=JSON.parse(await fs.readFile(path.join(root,'verification/incremental-draft-504457/pipeline/external-intake/ledger.json'),'utf8'));output={entries:l.entries.map(e=>({id:e.id,logicalId:e.logicalId,version:e.version,stage:e.stage,localVerified:e.verification.ok,sourceScope:e.sourceScope||null,owner:e.owner,blockedReason:e.blockedReason})),jobs:l.jobs.map(j=>({id:j.id,logicalId:j.logicalId,state:j.state,consumer:j.consumer,nextAction:j.nextAction,nextOwner:j.nextOwner||null,sourceScope:j.sourceScope||null})),catalogBatches:l.catalogBatches,capacity:l.capacity};}
+ else throw Error('Usage: sync | status | claim --consumer /root --thread MAINLINE_THREAD [--job ID] | complete --job ID --consumer /root --result VERIFICATION_JSON --sha256 HASH | promote --entry ID --stage STAGE --bundle JSON --consumer /root. Optional --root PROJECT. No watch, model startup, enqueue, write, publish or product listing command exists.');
+ console.log(JSON.stringify(output,null,2));
+})().catch(e=>{console.error(String(e));process.exitCode=1;});

@@ -1,0 +1,15 @@
+mutation UpdatePhase3ProductTemplates(
+  $product0: ProductUpdateInput!, $product1: ProductUpdateInput!, $product2: ProductUpdateInput!, $product3: ProductUpdateInput!, $product4: ProductUpdateInput!,
+  $product5: ProductUpdateInput!, $product6: ProductUpdateInput!, $product7: ProductUpdateInput!, $product8: ProductUpdateInput!, $product9: ProductUpdateInput!
+) {
+  update0: productUpdate(product: $product0) { product { id handle status templateSuffix } userErrors { field message } }
+  update1: productUpdate(product: $product1) { product { id handle status templateSuffix } userErrors { field message } }
+  update2: productUpdate(product: $product2) { product { id handle status templateSuffix } userErrors { field message } }
+  update3: productUpdate(product: $product3) { product { id handle status templateSuffix } userErrors { field message } }
+  update4: productUpdate(product: $product4) { product { id handle status templateSuffix } userErrors { field message } }
+  update5: productUpdate(product: $product5) { product { id handle status templateSuffix } userErrors { field message } }
+  update6: productUpdate(product: $product6) { product { id handle status templateSuffix } userErrors { field message } }
+  update7: productUpdate(product: $product7) { product { id handle status templateSuffix } userErrors { field message } }
+  update8: productUpdate(product: $product8) { product { id handle status templateSuffix } userErrors { field message } }
+  update9: productUpdate(product: $product9) { product { id handle status templateSuffix } userErrors { field message } }
+}

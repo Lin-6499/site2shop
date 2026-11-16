@@ -1,0 +1,12 @@
+mutation Phase5CollectionPublishBatch($publication: [PublicationInput!]!, $id0: ID!, $id1: ID!, $id2: ID!, $id3: ID!, $id4: ID!, $id5: ID!, $id6: ID!, $id7: ID!, $id8: ID!, $id9: ID!) {
+  publish0: publishablePublish(id: $id0, input: $publication) { userErrors { field message } }
+  publish1: publishablePublish(id: $id1, input: $publication) { userErrors { field message } }
+  publish2: publishablePublish(id: $id2, input: $publication) { userErrors { field message } }
+  publish3: publishablePublish(id: $id3, input: $publication) { userErrors { field message } }
+  publish4: publishablePublish(id: $id4, input: $publication) { userErrors { field message } }
+  publish5: publishablePublish(id: $id5, input: $publication) { userErrors { field message } }
+  publish6: publishablePublish(id: $id6, input: $publication) { userErrors { field message } }
+  publish7: publishablePublish(id: $id7, input: $publication) { userErrors { field message } }
+  publish8: publishablePublish(id: $id8, input: $publication) { userErrors { field message } }
+  publish9: publishablePublish(id: $id9, input: $publication) { userErrors { field message } }
+}

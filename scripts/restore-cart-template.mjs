@@ -1,0 +1,32 @@
+import fs from 'node:fs/promises';
+import {assertReviewedReleaseEvidence} from '../.codex-build/src/reviewed-release-evidence.js';
+import path from 'node:path';
+import {spawnSync} from 'node:child_process';
+import {createHash} from 'node:crypto';
+import {assertGeneratedThemeIntegrity} from '../.codex-build/src/theme-integrity.js';
+const project=path.resolve(process.argv[2]),dir=path.join(project,'cart-diagnostic');
+const read=async p=>JSON.parse(await fs.readFile(path.join(project,p),'utf8'));
+const deployment=await read('deployment.json'),build=await read('theme-build.json'),staging=await read('state-product-repair/staging.json');
+if(deployment.themeId!==189701193927||deployment.role!=='unpublished'||deployment.published||build.id!==deployment.themeBuild)throw new Error('Wrong draft/build');
+if(staging.themeBuild!==build.id||staging.themeCheck.errors||staging.themeCheck.warnings)throw new Error('Current Theme Check evidence invalid');
+await assertGeneratedThemeIntegrity(project);
+const template=await read('theme/templates/cart.json');
+if(JSON.stringify(template)!==JSON.stringify({sections:{main:{type:'s2s-cart',settings:{}}},order:['main']}))throw new Error('Unexpected cart template composition');
+const hash=bytes=>createHash('sha256').update(bytes).digest('hex');
+for(const file of ['sections/s2s-cart.liquid','assets/s2s-commerce.js','assets/s2s-commerce.css']){
+ const local=await fs.readFile(path.join(project,'theme',file)),remote=await fs.readFile(path.join(dir,'remote-readback',file));
+ if(hash(local)!==hash(remote))throw new Error('Cart dependency differs on remote: '+file);
+}
+const cli=path.resolve('node_modules/@shopify/cli/bin/run.js');
+const run=args=>{const r=spawnSync(process.execPath,[cli,...args],{env:{...process.env,SHOPIFY_CLI_NO_ANALYTICS:'1',SHOPIFY_CLI_NO_AUTO_UPDATE:'1'},encoding:'utf8',timeout:180000});if(r.status!==0)throw new Error(r.stderr||r.stdout||String(r.error));return r.stdout;};
+const identity=await read('cart-diagnostic/remote-identity.json');
+if(String(identity.theme?.id)!=='189701193927'||identity.theme?.role!=='unpublished'||identity.build!==build.id||Date.now()-Date.parse(identity.checkedAt)>600000)throw new Error('Fresh remote draft identity is missing or wrong');
+const impact={schemaVersion:1,themeId:deployment.themeId,themeBuild:build.id,causeLayer:'remote-deployment',cause:'templates/cart.json missing remotely while local generator output and remote cart section/assets are intact',changedRemoteFiles:['templates/cart.json'],generatorChangeRequired:false,reason:'src/commerce-theme.ts already generates the verified template; restore missing remote output without modifying correct source or unrelated pages',replay:['wine glass Arizona add','hat Alaska add as independent line','cart quantity update without changing other line','remove wine glass','remove hat and verify empty cart'],viewports:['desktop','tablet','mobile'],status:'restoring',published:false};
+await fs.writeFile(path.join(dir,'repair-impact.json'),JSON.stringify(impact,null,2));
+await assertReviewedReleaseEvidence(project,'preflight',true);
+console.log(run(['theme','push','--store',deployment.store,'--theme',String(deployment.themeId),'--path',path.join(project,'theme'),'--only','templates/cart.json','--nodelete']));
+console.log(run(['theme','pull','--store',deployment.store,'--theme',String(deployment.themeId),'--path',path.join(dir,'remote-readback'),'--only','templates/cart.json','--nodelete']));
+const remote=(await fs.readFile(path.join(dir,'remote-readback/templates/cart.json'),'utf8')).replace(/^\/\*[\s\S]*?\*\//,'');
+if(JSON.stringify(JSON.parse(remote))!==JSON.stringify(template))throw new Error('Cart template readback differs');
+impact.status='restored_pending_browser_test';impact.restoredAt=new Date().toISOString();impact.remoteTemplateReadbackPassed=true;
+await fs.writeFile(path.join(dir,'repair-impact.json'),JSON.stringify(impact,null,2));console.log('CART_TEMPLATE_RESTORED');

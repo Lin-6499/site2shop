@@ -1,0 +1,16 @@
+query HaroldBaselineResourceStatus {
+  shop { myshopifyDomain }
+  a: product(id: "gid://shopify/Product/15426655781063") {
+    id handle status onlineStoreUrl templateSuffix
+  }
+  collections(first: 1, query: "handle:quote-signs") {
+    nodes {
+      id handle descriptionHtml
+      products(first: 30) {
+        nodes { id handle status }
+        pageInfo { hasNextPage endCursor }
+      }
+    }
+    pageInfo { hasNextPage endCursor }
+  }
+}

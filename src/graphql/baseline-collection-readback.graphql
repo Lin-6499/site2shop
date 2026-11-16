@@ -1,0 +1,9 @@
+query BaselineCollectionReadback($id: ID!) {
+  collection(id: $id) {
+    id handle title descriptionHtml
+    products(first: 50) {
+      nodes { id handle status }
+      pageInfo { hasNextPage endCursor }
+    }
+  }
+}

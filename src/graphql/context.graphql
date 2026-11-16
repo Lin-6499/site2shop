@@ -1,0 +1,15 @@
+query CatalogContext {
+  shop {
+    id
+    currencyCode
+  }
+  publications(first: 50) {
+    nodes {
+      id
+      name
+    }
+    pageInfo {
+      hasNextPage
+    }
+  }
+}

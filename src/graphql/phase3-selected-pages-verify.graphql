@@ -1,0 +1,38 @@
+query VerifySelectedAcceptancePages {
+  beforeAfterExamples: page(id: "gid://shopify/Page/167395262663") {
+    id
+    handle
+    isPublished
+    templateSuffix
+  }
+  about: page(id: "gid://shopify/Page/167397359815") {
+    id
+    handle
+    isPublished
+    templateSuffix
+  }
+  imageTipsGuidelines: page(id: "gid://shopify/Page/167397392583") {
+    id
+    handle
+    isPublished
+    templateSuffix
+  }
+  inspirationGallery: page(id: "gid://shopify/Page/167397425351") {
+    id
+    handle
+    isPublished
+    templateSuffix
+  }
+  realEstateProfessionalV2: page(id: "gid://shopify/Page/167397458119") {
+    id
+    handle
+    isPublished
+    templateSuffix
+  }
+  customRealtorMerch: page(id: "gid://shopify/Page/167397490887") {
+    id
+    handle
+    isPublished
+    templateSuffix
+  }
+}

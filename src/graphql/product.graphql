@@ -1,0 +1,23 @@
+query ManagedProduct($identifier: ProductIdentifierInput!) {
+  productByIdentifier(identifier: $identifier) {
+    id
+    handle
+    title
+    tags
+    status
+    variants(first: 250) {
+      nodes {
+        id
+        price
+        compareAtPrice
+        selectedOptions {
+          name
+          value
+        }
+      }
+      pageInfo {
+        hasNextPage
+      }
+    }
+  }
+}

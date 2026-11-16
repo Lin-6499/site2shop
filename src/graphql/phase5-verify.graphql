@@ -1,0 +1,10 @@
+query Phase5Verify($ids: [ID!]!, $publicationId: ID!) {
+  nodes(ids: $ids) {
+    __typename
+    id
+    ... on Product { handle status publishedOnPublication(publicationId: $publicationId) }
+    ... on Collection { handle publishedOnPublication(publicationId: $publicationId) }
+    ... on Page { handle isPublished }
+    ... on Article { handle isPublished }
+  }
+}

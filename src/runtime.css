@@ -1,0 +1,55 @@
+/* Only lifecycle/accessibility fixes; the reference owns the visual design. */
+html {
+  scroll-behavior: smooth;
+}
+.shopify-section:empty {
+  display: none;
+}
+[data-s2s-status]:empty {
+  display: none;
+}
+[data-s2s-status] {
+  font-size: 14px;
+  line-height: 1.5;
+  color: #563e36;
+}
+/* Captured Bootstrap 5.1 CSS omitted the visibility half of the offcanvas
+   shown state while the generator ships a newer Bootstrap controller. */
+.offcanvas.show,
+.offcanvas.showing {
+  visibility: visible !important;
+}
+[data-s2s-local-file] {
+  display: block;
+  width: 100%;
+  padding: 20px;
+  border: 1px dashed #b5a8a2;
+  border-radius: 8px;
+  background: #faf8f6;
+}
+[data-s2s-file-preview] img {
+  display: block;
+  border-radius: 6px;
+  margin-block: 12px;
+}
+.product-media-gallery .main-splide .splide__track--fade > .splide__list {
+  display: flex;
+}
+.product-media-gallery
+  .main-splide
+  .splide__track--fade
+  > .splide__list
+  > .splide__slide {
+  position: relative;
+  inset: auto;
+  margin: 0 !important;
+}
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  .enter-view {
+    transition: none !important;
+    opacity: 1 !important;
+  }
+}

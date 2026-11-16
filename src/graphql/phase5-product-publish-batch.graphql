@@ -1,0 +1,22 @@
+mutation Phase5ProductPublishBatch($publication: [PublicationInput!]!, $product0: ProductUpdateInput!, $id0: ID!, $product1: ProductUpdateInput!, $id1: ID!, $product2: ProductUpdateInput!, $id2: ID!, $product3: ProductUpdateInput!, $id3: ID!, $product4: ProductUpdateInput!, $id4: ID!, $product5: ProductUpdateInput!, $id5: ID!, $product6: ProductUpdateInput!, $id6: ID!, $product7: ProductUpdateInput!, $id7: ID!, $product8: ProductUpdateInput!, $id8: ID!, $product9: ProductUpdateInput!, $id9: ID!) {
+  update0: productUpdate(product: $product0) { product { id handle status } userErrors { field message } }
+  publish0: publishablePublish(id: $id0, input: $publication) { userErrors { field message } }
+  update1: productUpdate(product: $product1) { product { id handle status } userErrors { field message } }
+  publish1: publishablePublish(id: $id1, input: $publication) { userErrors { field message } }
+  update2: productUpdate(product: $product2) { product { id handle status } userErrors { field message } }
+  publish2: publishablePublish(id: $id2, input: $publication) { userErrors { field message } }
+  update3: productUpdate(product: $product3) { product { id handle status } userErrors { field message } }
+  publish3: publishablePublish(id: $id3, input: $publication) { userErrors { field message } }
+  update4: productUpdate(product: $product4) { product { id handle status } userErrors { field message } }
+  publish4: publishablePublish(id: $id4, input: $publication) { userErrors { field message } }
+  update5: productUpdate(product: $product5) { product { id handle status } userErrors { field message } }
+  publish5: publishablePublish(id: $id5, input: $publication) { userErrors { field message } }
+  update6: productUpdate(product: $product6) { product { id handle status } userErrors { field message } }
+  publish6: publishablePublish(id: $id6, input: $publication) { userErrors { field message } }
+  update7: productUpdate(product: $product7) { product { id handle status } userErrors { field message } }
+  publish7: publishablePublish(id: $id7, input: $publication) { userErrors { field message } }
+  update8: productUpdate(product: $product8) { product { id handle status } userErrors { field message } }
+  publish8: publishablePublish(id: $id8, input: $publication) { userErrors { field message } }
+  update9: productUpdate(product: $product9) { product { id handle status } userErrors { field message } }
+  publish9: publishablePublish(id: $id9, input: $publication) { userErrors { field message } }
+}

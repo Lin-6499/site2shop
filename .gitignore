@@ -1,0 +1,12 @@
+node_modules/
+.env
+.env.*
+!.env.example
+runs/
+work/
+.tmp/
+.codex-build/
+.codex-run/
+__pycache__/
+*.pyc
+*.log

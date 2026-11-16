@@ -1,0 +1,25 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {createHash} from 'node:crypto';
+import {haroldProductSections} from '../.codex-build/src/harold-product-theme.js';
+import {writeStateProductLocales} from '../.codex-build/src/harold-state-product-repair.js';
+import {packageTheme} from '../.codex-build/src/compiler.js';
+import {assertGeneratedThemeIntegrity} from '../.codex-build/src/theme-integrity.js';
+const project=path.resolve(process.argv[2]);
+const hash=b=>createHash('sha256').update(b).digest('hex');
+async function inventory(dir,prefix=''){const result={};for(const e of await fs.readdir(dir,{withFileTypes:true})){const name=prefix+e.name;if(e.isDirectory())Object.assign(result,await inventory(path.join(dir,e.name),name+'/'));else result[name]=hash(await fs.readFile(path.join(dir,e.name)));}return result;}
+const before=await inventory(path.join(project,'theme'));
+const previous=JSON.parse(await fs.readFile(path.join(project,'theme-build.json'),'utf8'));
+const sections=['s2s-harold-hat-product','s2s-harold-wine-glass-product'];
+const impact={schemaVersion:1,status:'in_progress',previousBuild:previous.id,changedGeneratorOwners:['src/harold-product-theme.ts','src/harold-state-product-repair.ts','src/phase3-theme.ts'],affectedGeneratedFiles:[...sections.map(s=>'theme/sections/'+s+'.liquid'),'theme/locales/en.default.json','theme/layout/theme.liquid'],replayRequired:['s2s-harold-hat','s2s-harold-wine-glass'].map(routeFamily=>({routeFamily,viewports:['desktop','tablet','mobile'],states:['initial','scrolled','option-change-return','gallery-select'],reason:'Only these sections receive the scoped generator repair.'})),reusableUnchanged:['All other product sections and assets','Collections and content pages','Unchanged lower editorial sections and review integration'],scopeExpansion:{fullSiteRecaptureRequired:false,reason:'Repair is embedded only in two section types. No shared CSS, JS or global shell changed; locale keys are additive.'}};
+await fs.writeFile(path.join(project,'repair-impact-state-products.json'),JSON.stringify(impact,null,2));
+for(const section of sections)await fs.writeFile(path.join(project,'theme/sections',section+'.liquid'),haroldProductSections[section]);
+await writeStateProductLocales(project);await packageTheme(project);await assertGeneratedThemeIntegrity(project);
+const after=await inventory(path.join(project,'theme'));
+const changed=Object.keys(after).filter(file=>before[file]!==after[file]);
+const allowed=new Set(impact.affectedGeneratedFiles.map(n=>n.slice(6)));
+if(changed.some(n=>!allowed.has(n)))throw new Error('Unexpected shared output change '+changed.filter(n=>!allowed.has(n)));
+const build=JSON.parse(await fs.readFile(path.join(project,'theme-build.json'),'utf8'));
+impact.buildId=build.id;impact.generatedFiles=changed.map(file=>({file:'theme/'+file,before:before[file],sha256:after[file]}));
+await fs.writeFile(path.join(project,'repair-impact-state-products.json'),JSON.stringify(impact,null,2));
+console.log(JSON.stringify({build:build.id,changed,integrity:'passed'},null,2));

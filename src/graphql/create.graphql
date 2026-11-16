@@ -1,0 +1,18 @@
+mutation CreateManagedProduct($input: ProductSetInput!) {
+  productSet(input: $input, synchronous: true) {
+    product {
+      id
+      handle
+      title
+      status
+      metafield(namespace: "site2shop", key: "source_fingerprint") {
+        value
+      }
+    }
+    userErrors {
+      field
+      message
+      code
+    }
+  }
+}
